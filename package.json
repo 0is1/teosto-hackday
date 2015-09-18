@@ -3,10 +3,19 @@
   "version": "0.0.1",
   "description": "Teosto HackDay 2015",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server.js"
   },
   "author": "Janne Saarela",
   "dependencies": {
-    "request": "^2.62.0"
+    "bluebird": "^2.10.0",
+    "body-parser": "^1.14.0",
+    "compression": "^1.5.2",
+    "cookie-parser": "^1.3.5",
+    "express": "^4.13.3",
+    "express-handlebars": "^2.0.1",
+    "morgan": "^1.6.1",
+    "nodemon": "^1.5.1",
+    "request": "^2.62.0",
+    "serve-static": "^1.10.0"
   }
 }
