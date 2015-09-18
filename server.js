@@ -22,12 +22,9 @@ var hbs = expressHandlebars.create({
   helpers: {
     regExp: function(text) {
       console.log(text);
-      var result;
- 
-      if ((result = text.split(',')[0]) !== null) {
-        console.log(result)
-        return result
-      }
+      var result = text.split(',')[0];
+
+      if (result) return result;
     }
   }
 });
