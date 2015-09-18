@@ -17,7 +17,18 @@ var hbs = expressHandlebars.create({
   partialsDir: [
     'views/partials/'
   ],
-  extname: '.hbs'
+  extname: '.hbs',
+  helpers: {
+    regExp: function(text) {
+      console.log(text);
+      var result;
+ 
+      if ((result = text.split(',')[0]) !== null) {
+        console.log(result)
+        return result
+      }
+    }
+  }
 });
 
 var app = express();
