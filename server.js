@@ -59,6 +59,39 @@ app.get('/', function(req, res, next) {
 
 });
 
+app.get('/tavastia', function(req, res, next) {
+  TeostoApi.getVenueEvents('87a3013f58', 1, 1000, function(error, response, body) {
+    if (error) console.log(error);
+    console.log('status: ', response.statusCode);
+    console.log(body);
+    res.render('tavastia_events', {
+      title: 'REKO',
+      data: body
+    });
+  });
+
+});
+
+app.get('/venue/:venue_name', function(req, res, next) {
+  TeostoApi.getVenueByName(req.params.venue_name, function(error, response, body) {
+    if (error) console.log(error);
+    console.log('status: ', response.statusCode);
+    console.log(body);
+    TeostoApi.getVenueEvents(body.venues[0].id, 1, 1000, function(error, response, body) {
+      if (error) console.log(error);
+      console.log('status: ', response.statusCode);
+      console.log(body);
+      res.render('events', {
+        title: 'REKO',
+        data: body,
+        name: req.params.venue_name
+      });
+    });
+  });
+
+});
+
+
 if (require.main === module) {
   server.listen(config.port || 8000, function() {
     var addr = server.address();
