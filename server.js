@@ -9,6 +9,7 @@ var config = require('./config.json');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var TeostoApi = require('./TeostoApi');
+var echonest = require('./resources/echonest');
 
 var expressHandlebars = require('express-handlebars'); // https://github.com/ericf/express-handlebars
 var hbs = expressHandlebars.create({
@@ -34,6 +35,16 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
 app.use(require('serve-static')(__dirname + '/public'));
+
+// echonest.getArtistGenresById('ARZRFID11F50C4E9E1', function(err, result) {
+//   if (err) console.log(err);
+//   console.log(result);
+// });
+
+// echonest.getArtistSuggestData('OH LAND', function(err, result) {
+//   if (err) console.log(err);
+//   console.log(result);
+// });
 
 app.get('/', function(req, res, next) {
   TeostoApi.getRoot(function(error, response, body) {
