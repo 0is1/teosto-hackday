@@ -4,6 +4,7 @@ var logger = require('morgan');
 var Promise = require('bluebird');
 var compression = require('compression');
 var express = require('express');
+var async = require('async');
 var Server = require('http').Server;
 var config = require('./config.json');
 var bodyParser = require('body-parser');
@@ -18,15 +19,7 @@ var hbs = expressHandlebars.create({
   partialsDir: [
     'views/partials/'
   ],
-  extname: '.hbs',
-  helpers: {
-    regExp: function(text) {
-      console.log(text);
-      var result = text.split(',')[0];
-
-      if (result) return result;
-    }
-  }
+  extname: '.hbs'
 });
 
 var app = express();
@@ -91,9 +84,10 @@ app.get('/venue/:venue_name', function(req, res, next) {
       var dataWithNoNA = _.chain(data)
         .map(function(d, key) {
           if (d.name !== '<n/a>') {
+            var newName = d.name.split(',')[0].split('(')[0];
             return {
               id: d.id,
-              name: d.name,
+              name: newName,
               startDate: d.startDate,
               endDate: d.endDate,
               url: d.url
@@ -102,6 +96,26 @@ app.get('/venue/:venue_name', function(req, res, next) {
         })
         .compact(data)
         .value();
+
+      // DO NOT USE THIS LIKE THIS!
+      // async.eachSeries(dataWithNoNA, function(data, cb) {
+      //   console.log(data.name);
+      //   return echonest.getArtistSuggestDataAsync(data.name)
+      //     .then(function(result) {
+      //       console.log(result);
+      //     })
+      //     .catch(function(err) {
+      //       console.log(err);
+      //     })
+      //     .finally(function() {
+      //       cb();
+      //     });
+
+      // }, function(err) {
+      //   if (err) {
+      //     console.error('error: ', err);
+      //   }
+      // });
       res.render('events', {
         title: 'REKO',
         data: dataWithNoNA,
