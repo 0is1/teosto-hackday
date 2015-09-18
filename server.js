@@ -73,22 +73,20 @@ app.get('/tavastia', function(req, res, next) {
 });
 
 app.get('/venue/:venue_name', function(req, res, next) {
-  TeostoApi.getVenueByName(req.params.venue_name, function(error, response, body) {
-    if (error) console.log(error);
-    console.log('status: ', response.statusCode);
-    console.log(body);
-    TeostoApi.getVenueEvents(body.venues[0].id, 1, 1000, function(error, response, body) {
-      if (error) console.log(error);
-      console.log('status: ', response.statusCode);
-      console.log(body);
+  return TeostoApi.getVenueByNameAsync(req.params.venue_name)
+    .then(function(result) {
+      return TeostoApi.getVenueEventsAsync(result[1].venues[0].id, 1, 1000);
+    })
+    .then(function(result) {
       res.render('events', {
         title: 'REKO',
-        data: body,
+        data: result[1],
         name: req.params.venue_name
       });
+    })
+    .catch(function(err) {
+      console.log('error: ', err);
     });
-  });
-
 });
 
 
