@@ -8,8 +8,8 @@ var Server = require('http').Server;
 var config = require('./config.json');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-var TeostoApi = require('./TeostoApi');
-var echonest = require('./resources/echonest');
+var TeostoApi = Promise.promisifyAll(require('./TeostoApi'));
+var echonest = Promise.promisifyAll(require('./resources/echonest'));
 
 var expressHandlebars = require('express-handlebars'); // https://github.com/ericf/express-handlebars
 var hbs = expressHandlebars.create({
