@@ -1,3 +1,4 @@
 {
-  "basicURL" : "http://api.teosto.fi/2014/"
+  "basicURL": "http://api.teosto.fi/2014/",
+  "echonestApiKey": ""
 }
