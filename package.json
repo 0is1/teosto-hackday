@@ -7,6 +7,7 @@
   },
   "author": "Janne Saarela",
   "dependencies": {
+    "async": "^1.4.2",
     "bluebird": "^2.10.0",
     "body-parser": "^1.14.0",
     "compression": "^1.5.2",
