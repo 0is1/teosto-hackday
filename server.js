@@ -12,6 +12,7 @@ var cookieParser = require('cookie-parser');
 var _ = require('lodash');
 var TeostoApi = Promise.promisifyAll(require('./TeostoApi'));
 var echonest = Promise.promisifyAll(require('./resources/echonest'));
+var helpers = Promise.promisifyAll(require('./resources/helpers'));
 
 var expressHandlebars = require('express-handlebars'); // https://github.com/ericf/express-handlebars
 var hbs = expressHandlebars.create({
@@ -80,52 +81,84 @@ app.get('/venue/:venue_name', function(req, res, next) {
       return TeostoApi.getVenueEventsAsync(result[1].venues[0].id, 1, 1000);
     })
     .then(function(result) {
-      var data = result[1].events;
-      var dataWithNoNA = _.chain(data)
+      var usedObjects = {},
+        data = result[1].events,
+        venueId = result[1].venue.id;
+      var parsedData = _.chain(data)
         .map(function(d, key) {
           if (d.name !== '<n/a>') {
-            var newName = d.name.split(',')[0].split('(')[0];
-            return {
-              id: d.id,
-              name: newName,
-              startDate: d.startDate,
-              endDate: d.endDate,
-              url: d.url
-            };
+            var re = /([0-9a-öA-Ö ]{1,})/i;
+            var n = re.exec(d.name);
+            // Remove duplicates
+            var o = JSON.stringify(n[0].toLowerCase().trim());
+            if (!usedObjects[o]) {
+              usedObjects[o] = true;
+              return {
+                id: d.id,
+                name: n[0],
+                startDate: d.startDate,
+                endDate: d.endDate,
+                url: d.url
+              };
+            } else return false;
           } else return false;
         })
         .compact(data)
         .value();
-
-      // DO NOT USE THIS LIKE THIS!
-      // async.eachSeries(dataWithNoNA, function(data, cb) {
-      //   console.log(data.name);
-      //   return echonest.getArtistSuggestDataAsync(data.name)
-      //     .then(function(result) {
-      //       console.log(result);
-      //     })
-      //     .catch(function(err) {
-      //       console.log(err);
-      //     })
-      //     .finally(function() {
-      //       cb();
-      //     });
-
-      // }, function(err) {
-      //   if (err) {
-      //     console.error('error: ', err);
-      //   }
-      // });
       res.render('events', {
         title: 'REKO',
-        data: dataWithNoNA,
-        name: req.params.venue_name
+        data: parsedData
       });
     })
     .catch(function(err) {
       console.log('error: ', err);
     });
 });
+
+// Do not use this version with venues that have a lot of events
+// app.get('/venue/:venue_name', function(req, res, next) {
+//   return TeostoApi.getVenueByNameAsync(req.params.venue_name)
+//     .then(function(result) {
+//       return TeostoApi.getVenueEventsAsync(result[1].venues[0].id, 1, 1000);
+//     })
+//     .then(function(result) {
+//       var usedObjects = {},
+//         data = result[1].events,
+//         venueId = result[1].venue.id;
+//       var parsedData = _.chain(data)
+//         .map(function(d, key) {
+//           if (d.name !== '<n/a>') {
+//             var re = /([0-9a-öA-Ö ]{1,})/i;
+//             var n = re.exec(d.name);
+//             var o = JSON.stringify(n[0].toLowerCase().trim());
+//             if (!usedObjects[o]) {
+//               usedObjects[o] = true;
+//               return {
+//                 id: d.id,
+//                 name: n[0],
+//                 startDate: d.startDate,
+//                 endDate: d.endDate,
+//                 url: d.url
+//               };
+//             } else return false;
+//           } else return false;
+//         })
+//         .compact(data)
+//         .value();
+//       // Get artist name suggestions from echonest
+//       return helpers.getEchonestSuggestionsAsync(venueId, parsedData);
+//     })
+//     .then(function(result) {
+//       res.render('events', {
+//         title: 'REKO',
+//         data: result,
+//         name: req.params.venue_name
+//       });
+//     })
+//     .catch(function(err) {
+//       console.log('error: ', err);
+//     });
+// });
 
 
 if (require.main === module) {
